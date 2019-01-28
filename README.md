@@ -12,6 +12,6 @@ pip install git+https://github.com/BodenmillerGroup/cytobank-tools.git
 ## Usage
 
 ```
-python cytobank.py -u myusername -p mypassword -o "/home/me/Downloads"
+cytobank -u myusername -p mypassword -o "/home/me/Downloads"
 ```
 __
