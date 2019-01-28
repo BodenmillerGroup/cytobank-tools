@@ -14,4 +14,9 @@ pip install git+https://github.com/BodenmillerGroup/cytobank-tools.git
 ```
 cytobank -u myusername -p mypassword -o "/home/me/Downloads"
 ```
-__
+
+| Arguments      | Description |
+|----------------|-------------|
+| -u, --user     | Username    |
+| -p, --password | Password    |
+| -o, --output   | Directory where all data files will be downloaded (one subdirectory per experiment |
