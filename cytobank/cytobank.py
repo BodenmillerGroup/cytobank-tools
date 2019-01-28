@@ -16,9 +16,6 @@
 #  with this program; if not, write to the Free Software Foundation, Inc.,
 #  59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-__author__ = 'Anton Rau <anton.rau@uzh.ch>'
-__version__ = '0.1.0'
-
 import argparse
 import logging
 import sys
@@ -111,13 +108,13 @@ def export_experiment(id: int, output_dir: str):
     download_spade_analyses(id, experiment_dir)
 
 
-def main(arguments):
+def main():
     parser = argparse.ArgumentParser(description='Import/export operations with Cytobank data.')
     parser.add_argument('-u', '--username', help='Username', type=str)
     parser.add_argument('-p', '--password', help='Password', type=str)
     parser.add_argument('-o', '--output', help='Output directory', type=str)
 
-    args = parser.parse_args(arguments)
+    args = parser.parse_args()
     print(args)
 
     if args.username is not None and args.password is not None and args.output is not None:
