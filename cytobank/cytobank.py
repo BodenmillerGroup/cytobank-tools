@@ -124,7 +124,6 @@ def main():
         for exp in experiments:
             experiment_id = exp['id']
             export_experiment(experiment_id, args.output)
-            break
 
         print("Done.")
 
