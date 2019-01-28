@@ -17,6 +17,6 @@ cytobank -u myusername -p mypassword -o "/home/me/Downloads"
 
 | Arguments      | Description |
 |----------------|-------------|
-| -u, --user     | Username    |
-| -p, --password | Password    |
-| -o, --output   | Directory where all data files will be downloaded (one subdirectory per experiment |
+| -u, --user     | Cytobank account username |
+| -p, --password | Cytobank account password |
+| -o, --output   | Directory where all data files will be downloaded (one subdirectory per experiment) |
