@@ -15,7 +15,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'cytobank=cytobank.cytobank:main',
+            'cytobank=cytobank.__main__:main',
         ],
     },
 )
