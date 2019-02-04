@@ -63,6 +63,7 @@ class Uploader(ApiBase):
                           json=payload).json()
         return r
 
+    # Uploading via zip files doesn't work properly due to API error. Issue was reported to Cytobank.
     def upload_all_fcs_files_as_zip(self, id: int, experiment_dir: str):
         with open(os.path.join(experiment_dir, 'fcs.zip'), 'rb') as file:
             files = {'file': file}
