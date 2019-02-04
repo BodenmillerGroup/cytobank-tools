@@ -21,6 +21,7 @@ import logging
 import sys
 
 from cytobank.Downloader import Downloader
+from cytobank.Uploader import Uploader
 
 logging.basicConfig()
 log = logging.getLogger()
@@ -29,17 +30,24 @@ log.propagate = True
 
 def main():
     parser = argparse.ArgumentParser(description='Import/export operations with Cytobank data.')
+    parser.add_argument('command', help='Desired action: download or upload', type=str)
     parser.add_argument('-u', '--username', help='Username', type=str)
     parser.add_argument('-p', '--password', help='Password', type=str)
-    parser.add_argument('-b', '--bank', help='Cytobank', type=str)
-    parser.add_argument('-o', '--output', help='Output directory', type=str)
+    parser.add_argument('-b', '--bank', help='Cytobank name', type=str)
+    parser.add_argument('-d', '--data', help='Data directory', type=str)
 
     args = parser.parse_args()
     print(args)
 
-    if args.username is not None and args.password is not None and args.bank is not None and args.output is not None:
-        downloader = Downloader(args.bank, args.output, args.username, args.password)
-        downloader.download_all_experiments()
+    if args.command is not None and args.username is not None and args.password is not None and args.bank is not None and args.data is not None:
+        if args.command.lower() == 'download':
+            downloader = Downloader(args.bank, args.data, args.username, args.password)
+            downloader.download_all_experiments()
+        elif args.command.lower() == 'upload':
+            uploader = Uploader(args.bank, args.data, args.username, args.password)
+            uploader.upload_all_experiments()
+        else:
+            raise Exception("Unknown command. Should be 'download' or 'upload'.")
 
         print("Done.")
 

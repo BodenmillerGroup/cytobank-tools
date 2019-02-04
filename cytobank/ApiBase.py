@@ -10,6 +10,5 @@ class ApiBase:
     def authenticate(self, username: str, password: str):
         r = requests.post(f'{self.api_url}/authenticate', data={'username': username, 'password': password}).json()
         if "errors" in r:
-            print(r["errors"])
             raise Exception(r["errors"])
         self.token = r['user']['authToken']
