@@ -56,7 +56,7 @@ class Downloader(ApiBase):
         with open(os.path.join(experiment_dir, 'fcs.json'), 'w') as file:
             json.dump(r, file)
 
-        if len(r['fcsFiles']) > 0:
+        if 'fcsFiles' in r and len(r['fcsFiles']) > 0:
             sub_dir = os.path.join(experiment_dir, 'fcs')
             if not os.path.exists(sub_dir):
                 os.makedirs(sub_dir)
@@ -85,7 +85,7 @@ class Downloader(ApiBase):
         r = requests.get(f'{self.api_url}/experiments/{id}/advanced_analyses/spade',
                          headers={'Authorization': f'Bearer {self.token}'}).json()
 
-        if len(r['spade']) > 0:
+        if 'spade' in r and len(r['spade']) > 0:
             sub_dir = os.path.join(experiment_dir, 'spades')
             if not os.path.exists(sub_dir):
                 os.makedirs(sub_dir)
@@ -110,7 +110,7 @@ class Downloader(ApiBase):
         with open(os.path.join(experiment_dir, 'attachments.json'), 'w') as file:
             json.dump(r, file)
 
-        if len(r['attachments']) > 0:
+        if 'attachments' in r and len(r['attachments']) > 0:
             sub_dir = os.path.join(experiment_dir, 'attachments')
             if not os.path.exists(sub_dir):
                 os.makedirs(sub_dir)
@@ -130,6 +130,7 @@ class Downloader(ApiBase):
             os.makedirs(experiment_dir)
         self.download_experiment_details(id, experiment_dir)
         self.download_all_fcs_files(id, experiment_dir)
+        # self.download_all_fcs_files_as_zip(id, experiment_dir)
         self.download_gating_ml(id, experiment_dir)
         self.download_sample_tags(id, experiment_dir)
         self.download_all_attachments(id, experiment_dir)

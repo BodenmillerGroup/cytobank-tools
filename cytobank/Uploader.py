@@ -115,6 +115,7 @@ class Uploader(ApiBase):
         experiment = self.create_experiment(experiment_dir)['experiment']
         experiment_id = experiment['id']
         self.upload_all_fcs_files(experiment_id, experiment_dir)
+        # self.upload_all_fcs_files_as_zip(experiment_id, experiment_dir)
         self.upload__all_attachments(experiment_id, experiment_dir)
         self.upload_sample_tags(experiment_id, experiment_dir)
         self.upload_gating_ml(experiment_id, experiment_dir)
