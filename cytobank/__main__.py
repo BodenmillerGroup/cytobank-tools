@@ -31,7 +31,7 @@ log.propagate = True
 
 def main():
     parser = argparse.ArgumentParser(description='Import/export operations with Cytobank data.')
-    parser.add_argument('command', help='Desired action: download or upload', type=str)
+    parser.add_argument('command', help='Desired action: download or upload or verify', type=str)
     parser.add_argument('-u', '--username', help='Username', type=str)
     parser.add_argument('-p', '--password', help='Password', type=str)
     parser.add_argument('-b', '--bank', help='Cytobank name', type=str)
@@ -55,7 +55,7 @@ def main():
             uploader.upload_all_experiments()
         elif args.command.lower() == 'verify':
             assert os.path.isfile(os.path.join(args.data,
-                                               "experiments.json"), "Experiment json file 'experiments.json' not found in {0}.".format(args.data))
+                                               "experiments.json")), "Experiment json file 'experiments.json' not found in {0}.".format(args.data)
             verify = Verify(args.data,
                             os.path.isfile(os.path.join(args.data,
                                                "experiments.json")))
