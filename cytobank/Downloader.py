@@ -26,12 +26,12 @@ from cytobank.ApiBase import ApiBase
 
 class Downloader(ApiBase):
     def __init__(self, bank: str, data_dir: str, username: str, password: str, json = None):
-        super().__init__(bank)
+        super().__init__(bank, username, password)
         self.data_dir = data_dir
         self.json = json
         if not os.path.exists(self.data_dir):
             os.makedirs(self.data_dir)
-        self.authenticate(username, password)
+        self.authenticate()
 
     def list_experiments(self):
         # Use local json if defined
@@ -42,26 +42,29 @@ class Downloader(ApiBase):
                 json_data = json.load(fd)
             return json_data
         else:
-            r = requests.get(f'{self.api_url}/experiments', headers={'Authorization': f'Bearer {self.token}'}).json()
+            # r = requests.get(f'{self.api_url}/experiments', headers={'Authorization': f'Bearer {self.token}'}).json()
+            r = self.get_json(f'{self.api_url}/experiments')
             with open(os.path.join(self.data_dir, 'experiments.json'), 'w') as file:
                 json.dump(r, file)
             return r
 
     def download_experiment_details(self, id: int, experiment_dir: str):
-        r = requests.get(f'{self.api_url}/experiments/{id}', headers={'Authorization': f'Bearer {self.token}'}).json()
+        # r = requests.get(f'{self.api_url}/experiments/{id}', headers={'Authorization': f'Bearer {self.token}'}).json()
+        r = self.get_json(f'{self.api_url}/experiments/{id}')
         with open(os.path.join(experiment_dir, 'experiment_details.json'), 'w') as file:
             json.dump(r, file)
 
     def download_all_fcs_files_as_zip(self, id: int, experiment_dir: str):
-        r = requests.get(f'{self.api_url}/experiments/{id}/fcs_files/download_zip',
-                         headers={'Authorization': f'Bearer {self.token}'})
+        # r = requests.get(f'{self.api_url}/experiments/{id}/fcs_files/download_zip',
+        #                  headers={'Authorization': f'Bearer {self.token}'})
+        r = self.get_json(f'{self.api_url}/experiments/{id}/fcs_files/download_zip')
         with open(os.path.join(experiment_dir, 'fcs.zip'), 'wb') as file:
             file.write(r.content)
 
     def download_all_fcs_files(self, id: int, experiment_dir: str):
-        r = requests.get(f'{self.api_url}/experiments/{id}/fcs_files',
-                         headers={'Authorization': f'Bearer {self.token}'}).json()
-
+        # r = requests.get(f'{self.api_url}/experiments/{id}/fcs_files',
+        #                  headers={'Authorization': f'Bearer {self.token}'}).json()
+        r = self.get_json(f'{self.api_url}/experiments/{id}/fcs_files')
         with open(os.path.join(experiment_dir, 'fcs.json'), 'w') as file:
             json.dump(r, file)
 
@@ -72,50 +75,55 @@ class Downloader(ApiBase):
             for fcs_file in r['fcsFiles']:
                 fcs_file_id = fcs_file['id']
                 fcs_filename = fcs_file['filename']
-                r = requests.get(
-                    f'{self.api_url}/experiments/{id}/fcs_files/{fcs_file_id}/download',
-                    headers={'Authorization': f'Bearer {self.token}'})
+                # r = requests.get(
+                #     f'{self.api_url}/experiments/{id}/fcs_files/{fcs_file_id}/download',
+                #     headers={'Authorization': f'Bearer {self.token}'})
+                r = self.get_json(f'{self.api_url}/experiments/{id}/fcs_files/{fcs_file_id}/download')
                 with open(os.path.join(sub_dir, f'{fcs_filename}'), 'wb') as file:
                     file.write(r.content)
 
     def download_gating_ml(self, id: int, experiment_dir: str):
-        r = requests.get(f'{self.api_url}/experiments/{id}/download_gatingml',
-                         headers={'Authorization': f'Bearer {self.token}'})
+        # r = requests.get(f'{self.api_url}/experiments/{id}/download_gatingml',
+        #                  headers={'Authorization': f'Bearer {self.token}'})
+        r = self.get_json(f'{self.api_url}/experiments/{id}/download_gatingml')
         with open(os.path.join(experiment_dir, 'gates.xml'), 'wb') as file:
             file.write(r.content)
 
     def download_sample_tags(self, id: int, experiment_dir: str):
-        r = requests.get(f'{self.api_url}/experiments/{id}/download_sample_tags',
-                         headers={'Authorization': f'Bearer {self.token}'})
+        # r = requests.get(f'{self.api_url}/experiments/{id}/download_sample_tags',
+        #                  headers={'Authorization': f'Bearer {self.token}'})
+        r = self.get_json(f'{self.api_url}/experiments/{id}/download_sample_tags')
         with open(os.path.join(experiment_dir, 'sample_tags.tsv'), 'wb') as file:
             file.write(r.content)
 
     def download_spade_analyses(self, id: int, experiment_dir: str):
-        r = requests.get(f'{self.api_url}/experiments/{id}/advanced_analyses/spade',
-                         headers={'Authorization': f'Bearer {self.token}'}).json()
-
+        # r = requests.get(f'{self.api_url}/experiments/{id}/advanced_analyses/spade',
+        #                  headers={'Authorization': f'Bearer {self.token}'}).json()
+        r = self.get_json(f'{self.api_url}/experiments/{id}/advanced_analyses/spade')
         if 'spade' in r and len(r['spade']) > 0:
             sub_dir = os.path.join(experiment_dir, 'spades')
             if not os.path.exists(sub_dir):
                 os.makedirs(sub_dir)
             for analysis in r['spade']:
                 analysis_id = analysis['id']
-                r = requests.get(
-                    f'{self.api_url}/experiments/{id}/advanced_analyses/spade/{analysis_id}/download?item=full_data',
-                    headers={'Authorization': f'Bearer {self.token}'})
+                # r = requests.get(
+                #     f'{self.api_url}/experiments/{id}/advanced_analyses/spade/{analysis_id}/download?item=full_data',
+                    # headers={'Authorization': f'Bearer {self.token}'})
+                r = self.get_json(f'{self.api_url}/experiments/{id}/advanced_analyses/spade/{analysis_id}/download?item=full_data')
                 with open(os.path.join(sub_dir, f'{analysis_id}.zip'), 'wb') as file:
                     file.write(r.content)
 
     def download_all_attachments_as_zip(self, id: int, experiment_dir: str):
-        r = requests.get(f'{self.api_url}/experiments/{id}/attachments/download_zip',
-                         headers={'Authorization': f'Bearer {self.token}'})
+        # r = requests.get(f'{self.api_url}/experiments/{id}/attachments/download_zip',
+        #                  headers={'Authorization': f'Bearer {self.token}'})
+        r = self.get_json(f'{self.api_url}/experiments/{id}/attachments/download_zip')
         with open(os.path.join(experiment_dir, 'attachments.zip'), 'wb') as file:
             file.write(r.content)
 
     def download_all_attachments(self, id: int, experiment_dir: str):
-        r = requests.get(f'{self.api_url}/experiments/{id}/attachments',
-                         headers={'Authorization': f'Bearer {self.token}'}).json()
-
+        # r = requests.get(f'{self.api_url}/experiments/{id}/attachments',
+        #                  headers={'Authorization': f'Bearer {self.token}'}).json()
+        r = self.get_json(f'{self.api_url}/experiments/{id}/attachments')
         with open(os.path.join(experiment_dir, 'attachments.json'), 'w') as file:
             json.dump(r, file)
 
@@ -126,9 +134,10 @@ class Downloader(ApiBase):
             for attachment_file in r['attachments']:
                 attachment_file_id = attachment_file['id']
                 attachment_filename = attachment_file['filename']
-                r = requests.get(
-                    f'{self.api_url}/experiments/{id}/attachments/{attachment_file_id}/download',
-                    headers={'Authorization': f'Bearer {self.token}'})
+                # r = requests.get(
+                #     f'{self.api_url}/experiments/{id}/attachments/{attachment_file_id}/download',
+                #     headers={'Authorization': f'Bearer {self.token}'})
+                r = self.get_json(f'{self.api_url}/experiments/{id}/attachments/{attachment_file_id}/download')
                 with open(os.path.join(sub_dir, f'{attachment_filename}'), 'wb') as file:
                     file.write(r.content)
 

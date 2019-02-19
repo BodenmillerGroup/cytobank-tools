@@ -26,9 +26,9 @@ from cytobank.ApiBase import ApiBase
 
 class Uploader(ApiBase):
     def __init__(self, bank: str, data_dir: str, username: str, password: str):
-        super().__init__(bank)
+        super().__init__(bank, username, password)
         self.data_dir = data_dir
-        self.authenticate(username, password)
+        self.authenticate()
 
     def load_experiments(self):
         with open(os.path.join(self.data_dir, 'experiments.json'), 'r') as file:
@@ -52,8 +52,8 @@ class Uploader(ApiBase):
             "experiment":
                 {
                     "experimentName": expriment_details['experimentName'],
-                    "primaryResearcherId": expriment_details['primaryResearcherId'],
-                    "principalInvestigatorId": expriment_details['principalInvestigatorId'],
+                    "primaryResearcherId": self.user_id, # expriment_details['primaryResearcherId'],
+                    "principalInvestigatorId": self.user_id, # expriment_details['principalInvestigatorId'],
                     "projectId": expriment_details['projectId'],
                     "purpose": expriment_details['purpose'],
                     "comments": expriment_details['comments']

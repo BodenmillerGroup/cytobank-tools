@@ -17,28 +17,28 @@
 #  59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 import os
+import json
+
 EXP_FILENAME = "experiment_details.json"
 TIMEOUT_PATTERN = "Authentication Timeout"
 
 
-class Verify(Object):
-    def __init__(self, data_dir: str, json: str):
+class Verify():
+    def __init__(self, data_dir: str, exp_json: str):
         self.data_dir = data_dir
-        self.json = json
-        self.missing_json = os.path.join(self.data_dir, "experiments_missing.json")
+        self.exp_json = exp_json
+        self.missing_exp_file = os.path.join(self.data_dir, "experiments_missing.json")
 
-        self.missing_experiments = self._search_timeout()
-        if self.missing_experiments:
-            self.json_missing = self._build_new_json(self.missing_experiments)
+        self.missing_exp_list = self._search_timeout()
+        self.missing_exp_json = self._build_new_json(self.missing_exp_list)
 
-        self.missing_experiments_count = len(self.json_missing['experiments'])
-
-        if len(self.json_missing['experiments']) > 0:
-            json.dump(self.json_missing, self.missing_json)
+        if len(self.missing_exp_json['experiments']) > 0:
+            with open(self.missing_exp_file, 'w+') as fd:
+                json.dump(self.missing_exp_json, fd)
         
     @property
     def missing_experiments(self):
-        return self.missing_experiments_count
+        return len(self.missing_exp_json['experiments'])
         
     def _search_timeout(self):
         missing = []
@@ -46,7 +46,7 @@ class Verify(Object):
         for r,d,f in os.walk(self.data_dir):
             if EXP_FILENAME in f:
                 with open(os.path.join(r,EXP_FILENAME),'r') as fd:
-                    if TIMEOUT_PATTERN in fd.readlines():
+                    if TIMEOUT_PATTERN in fd.read():
                         # extract experiment ID for later
                         exp_id = os.path.basename(r)
                         print("Found missing experiment '{0}'".format(exp_id))
@@ -55,7 +55,7 @@ class Verify(Object):
 
     def _build_new_json(self, missing_list):
         new_json = {'experiments': []}
-        with open(self.json,'r') as fd:
+        with open(self.exp_json,'r') as fd:
             json_data = json.load(fd)
 
         for exp in json_data['experiments']:

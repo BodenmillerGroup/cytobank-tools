@@ -23,6 +23,7 @@ import os
 
 from cytobank.Downloader import Downloader
 from cytobank.Uploader import Uploader
+from cytobank.Verify import Verify
 
 logging.basicConfig()
 log = logging.getLogger()
@@ -56,14 +57,12 @@ def main():
         elif args.command.lower() == 'verify':
             assert os.path.isfile(os.path.join(args.data,
                                                "experiments.json")), "Experiment json file 'experiments.json' not found in {0}.".format(args.data)
-            verify = Verify(args.data,
-                            os.path.isfile(os.path.join(args.data,
-                                               "experiments.json")))
+            verify = Verify(args.data, os.path.join(args.data,"experiments.json"))
             print("Found {0} missing experiments. ".format(verify.missing_experiments))
             if verify.missing_experiments:
-                print("Use: `cytobank download -j {0}` to download missing experiments."
-                " Then run: `cytobank verify {1}` again until 0 experiments will"
-                " be missing".format(verify.missing_json, args.data))
+                print("\nUse: `cytobank download -j {0}` to download missing experiments. \n"
+                "Then run: `cytobank verify {1}` again until 0 experiments will"
+                " be missing".format(verify.missing_exp_file, args.data))
             
         else:
             raise Exception("Unknown command. Should be 'download' or 'upload'.")
