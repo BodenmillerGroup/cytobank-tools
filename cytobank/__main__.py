@@ -19,6 +19,7 @@
 import argparse
 import logging
 import sys
+import os
 
 from cytobank.Downloader import Downloader
 from cytobank.Uploader import Uploader
@@ -35,17 +36,35 @@ def main():
     parser.add_argument('-p', '--password', help='Password', type=str)
     parser.add_argument('-b', '--bank', help='Cytobank name', type=str)
     parser.add_argument('-d', '--data', help='Data directory', type=str)
+    parser.add_argument('-j', '--json', default=None, dest='local_json',
+                        help='Use local json experiment fike. ' \
+                        '(default:  %(default)s.)')
 
     args = parser.parse_args()
     print(args)
 
+    if args.local_json:
+        assert os.path.isfile(args.local_json), "Json file {0} not found.".forma(args.local_json)
+
     if args.command is not None and args.username is not None and args.password is not None and args.bank is not None and args.data is not None:
         if args.command.lower() == 'download':
-            downloader = Downloader(args.bank, args.data, args.username, args.password)
+            downloader = Downloader(args.bank, args.data, args.username, args.password, json=args.local_json)
             downloader.download_all_experiments()
         elif args.command.lower() == 'upload':
             uploader = Uploader(args.bank, args.data, args.username, args.password)
             uploader.upload_all_experiments()
+        elif args.command.lower() == 'verify':
+            assert os.path.isfile(os.path.join(args.data,
+                                               "experiments.json"), "Experiment json file 'experiments.json' not found in {0}.".format(args.data))
+            verify = Verify(args.data,
+                            os.path.isfile(os.path.join(args.data,
+                                               "experiments.json")))
+            print("Found {0} missing experiments. ".format(verify.missing_experiments))
+            if verify.missing_experiments:
+                print("Use: `cytobank download -j {0}` to download missing experiments."
+                " Then run: `cytobank verify {1}` again until 0 experiments will"
+                " be missing".format(verify.missing_json, args.data))
+            
         else:
             raise Exception("Unknown command. Should be 'download' or 'upload'.")
 

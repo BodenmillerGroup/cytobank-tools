@@ -25,18 +25,27 @@ from cytobank.ApiBase import ApiBase
 
 
 class Downloader(ApiBase):
-    def __init__(self, bank: str, data_dir: str, username: str, password: str):
+    def __init__(self, bank: str, data_dir: str, username: str, password: str, json = None):
         super().__init__(bank)
         self.data_dir = data_dir
+        self.json = json
         if not os.path.exists(self.data_dir):
             os.makedirs(self.data_dir)
         self.authenticate(username, password)
 
     def list_experiments(self):
-        r = requests.get(f'{self.api_url}/experiments', headers={'Authorization': f'Bearer {self.token}'}).json()
-        with open(os.path.join(self.data_dir, 'experiments.json'), 'w') as file:
-            json.dump(r, file)
-        return r
+        # Use local json if defined
+        # Get full experiment json otherwise
+        if self.json:
+            json_data = None
+            with open(self.json, 'r') as fd:
+                json_data = json.load(fd)
+            return json_data
+        else:
+            r = requests.get(f'{self.api_url}/experiments', headers={'Authorization': f'Bearer {self.token}'}).json()
+            with open(os.path.join(self.data_dir, 'experiments.json'), 'w') as file:
+                json.dump(r, file)
+            return r
 
     def download_experiment_details(self, id: int, experiment_dir: str):
         r = requests.get(f'{self.api_url}/experiments/{id}', headers={'Authorization': f'Bearer {self.token}'}).json()
