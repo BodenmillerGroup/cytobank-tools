@@ -57,7 +57,7 @@ class Downloader(ApiBase):
     def download_all_fcs_files_as_zip(self, id: int, experiment_dir: str):
         # r = requests.get(f'{self.api_url}/experiments/{id}/fcs_files/download_zip',
         #                  headers={'Authorization': f'Bearer {self.token}'})
-        r = self.get_json(f'{self.api_url}/experiments/{id}/fcs_files/download_zip')
+        r = self.get(f'{self.api_url}/experiments/{id}/fcs_files/download_zip')
         with open(os.path.join(experiment_dir, 'fcs.zip'), 'wb') as file:
             file.write(r.content)
 
@@ -78,21 +78,21 @@ class Downloader(ApiBase):
                 # r = requests.get(
                 #     f'{self.api_url}/experiments/{id}/fcs_files/{fcs_file_id}/download',
                 #     headers={'Authorization': f'Bearer {self.token}'})
-                r = self.get_json(f'{self.api_url}/experiments/{id}/fcs_files/{fcs_file_id}/download')
+                r = self.get(f'{self.api_url}/experiments/{id}/fcs_files/{fcs_file_id}/download')
                 with open(os.path.join(sub_dir, f'{fcs_filename}'), 'wb') as file:
                     file.write(r.content)
 
     def download_gating_ml(self, id: int, experiment_dir: str):
         # r = requests.get(f'{self.api_url}/experiments/{id}/download_gatingml',
         #                  headers={'Authorization': f'Bearer {self.token}'})
-        r = self.get_json(f'{self.api_url}/experiments/{id}/download_gatingml')
+        r = self.get(f'{self.api_url}/experiments/{id}/download_gatingml')
         with open(os.path.join(experiment_dir, 'gates.xml'), 'wb') as file:
             file.write(r.content)
 
     def download_sample_tags(self, id: int, experiment_dir: str):
         # r = requests.get(f'{self.api_url}/experiments/{id}/download_sample_tags',
         #                  headers={'Authorization': f'Bearer {self.token}'})
-        r = self.get_json(f'{self.api_url}/experiments/{id}/download_sample_tags')
+        r = self.get(f'{self.api_url}/experiments/{id}/download_sample_tags')
         with open(os.path.join(experiment_dir, 'sample_tags.tsv'), 'wb') as file:
             file.write(r.content)
 
@@ -109,14 +109,14 @@ class Downloader(ApiBase):
                 # r = requests.get(
                 #     f'{self.api_url}/experiments/{id}/advanced_analyses/spade/{analysis_id}/download?item=full_data',
                     # headers={'Authorization': f'Bearer {self.token}'})
-                r = self.get_json(f'{self.api_url}/experiments/{id}/advanced_analyses/spade/{analysis_id}/download?item=full_data')
+                r = self.get(f'{self.api_url}/experiments/{id}/advanced_analyses/spade/{analysis_id}/download?item=full_data')
                 with open(os.path.join(sub_dir, f'{analysis_id}.zip'), 'wb') as file:
                     file.write(r.content)
 
     def download_all_attachments_as_zip(self, id: int, experiment_dir: str):
         # r = requests.get(f'{self.api_url}/experiments/{id}/attachments/download_zip',
         #                  headers={'Authorization': f'Bearer {self.token}'})
-        r = self.get_json(f'{self.api_url}/experiments/{id}/attachments/download_zip')
+        r = self.get(f'{self.api_url}/experiments/{id}/attachments/download_zip')
         with open(os.path.join(experiment_dir, 'attachments.zip'), 'wb') as file:
             file.write(r.content)
 
@@ -137,7 +137,7 @@ class Downloader(ApiBase):
                 # r = requests.get(
                 #     f'{self.api_url}/experiments/{id}/attachments/{attachment_file_id}/download',
                 #     headers={'Authorization': f'Bearer {self.token}'})
-                r = self.get_json(f'{self.api_url}/experiments/{id}/attachments/{attachment_file_id}/download')
+                r = self.get(f'{self.api_url}/experiments/{id}/attachments/{attachment_file_id}/download')
                 with open(os.path.join(sub_dir, f'{attachment_filename}'), 'wb') as file:
                     file.write(r.content)
 
