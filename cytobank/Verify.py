@@ -29,7 +29,14 @@ class Verify():
         self.exp_json = exp_json
         self.missing_exp_file = os.path.join(self.data_dir, "experiments_missing.json")
 
-        self.missing_exp_list = self._search_timeout()
+        self.downloaded_experiments = [int(os.path.basename(exp)) for exp in os.listdir(self.data_dir) if os.path.isdir(os.path.join(self.data_dir,
+                                                                                                                                exp))]
+        self.all_experiments = self._get_all_experiments()
+
+        self.missing_exp_list = []
+        self.missing_exp_list.extend(self._search_timeout())
+        self.missing_exp_list.extend(self._get_non_downloaded_experiments())
+
         self.missing_exp_json = self._build_new_json(self.missing_exp_list)
 
         if len(self.missing_exp_json['experiments']) > 0:
@@ -39,7 +46,19 @@ class Verify():
     @property
     def missing_experiments(self):
         return len(self.missing_exp_json['experiments'])
-        
+
+    def _get_non_downloaded_experiments(self):
+        # Compare list of downloaded with lost of all
+        return list(set(self.all_experiments) - set(self.downloaded_experiments))
+
+    def _get_all_experiments(self):
+        experiments = []
+        with open(self.exp_json,'r') as fd:
+            json_data = json.load(fd)
+            for exp in json_data['experiments']:
+                experiments.append(exp['id'])
+        return experiments
+
     def _search_timeout(self):
         missing = []
 

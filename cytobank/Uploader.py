@@ -59,16 +59,18 @@ class Uploader(ApiBase):
                     "comments": expriment_details['comments']
                 }
         }
-        r = requests.post(f'{self.api_url}/experiments', headers={'Authorization': f'Bearer {self.token}'},
-                          json=payload).json()
+        # r = requests.post(f'{self.api_url}/experiments', headers={'Authorization': f'Bearer {self.token}'},
+        #                   json=payload).json()
+        r = self.post(f'{self.api_url}/experiments', json=payload).json()
         return r
 
     # Uploading via zip files doesn't work properly due to API error. Issue was reported to Cytobank.
     def upload_all_fcs_files_as_zip(self, id: int, experiment_dir: str):
         with open(os.path.join(experiment_dir, 'fcs.zip'), 'rb') as file:
             files = {'file': file}
-            r = requests.post(f'{self.api_url}/experiments/{id}/fcs_files/upload_zip',
-                              headers={'Authorization': f'Bearer {self.token}'}, files=files)
+            # r = requests.post(f'{self.api_url}/experiments/{id}/fcs_files/upload_zip',
+            #                   headers={'Authorization': f'Bearer {self.token}'}, files=files)
+            r = self.post(f'{self.api_url}/experiments/{id}/fcs_files/upload_zip', data=file)
             print(r.text)
 
     def upload_all_fcs_files(self, id: int, experiment_dir: str):
@@ -78,22 +80,25 @@ class Uploader(ApiBase):
             for fcs_file in fcs:
                 with open(os.path.join(experiment_dir, 'fcs', fcs_file['filename']), 'rb') as file:
                     files = {'file': file}
-                    r = requests.post(f'{self.api_url}/experiments/{id}/fcs_files/upload',
-                                      headers={'Authorization': f'Bearer {self.token}'}, files=files)
+                    # r = requests.post(f'{self.api_url}/experiments/{id}/fcs_files/upload',
+                    #                   headers={'Authorization': f'Bearer {self.token}'}, files=files)
+                    r = self.post(f'{self.api_url}/experiments/{id}/fcs_files/upload', data=file)
                     print(r.text)
 
     def upload_gating_ml(self, id: int, experiment_dir: str):
         with open(os.path.join(experiment_dir, 'gates.xml'), 'rb') as file:
-            files = {'file': file}
-            r = requests.post(f'{self.api_url}/experiments/{id}/upload_gatingml',
-                             headers={'Authorization': f'Bearer {self.token}'}, files=files)
+            # files = {'file': file}
+            # r = requests.post(f'{self.api_url}/experiments/{id}/upload_gatingml',
+            #                  headers={'Authorization': f'Bearer {self.token}'}, files=files)
+            r = self.post(f'{self.api_url}/experiments/{id}/upload_gatingml', data=file)
             print(r.text)
 
     def upload_sample_tags(self, id: int, experiment_dir: str):
         with open(os.path.join(experiment_dir, 'sample_tags.tsv'), 'rb') as file:
-            files = {'file': file}
-            r = requests.post(f'{self.api_url}/experiments/{id}/upload_sample_tags',
-                             headers={'Authorization': f'Bearer {self.token}'}, files=files)
+            # files = {'file': file}
+            # r = requests.post(f'{self.api_url}/experiments/{id}/upload_sample_tags',
+            #                  headers={'Authorization': f'Bearer {self.token}'}, files=files)
+            r = self.post(f'{self.api_url}/experiments/{id}/upload_sample_tags', data=file)
             print(r.text)
 
     def upload__all_attachments(self, id: int, experiment_dir: str):
@@ -103,8 +108,9 @@ class Uploader(ApiBase):
             for attachment_file in attachments:
                 with open(os.path.join(experiment_dir, 'attachments', attachment_file['filename']), 'rb') as file:
                     files = {'file': file}
-                    r = requests.post(f'{self.api_url}/experiments/{id}/attachments/upload',
-                                      headers={'Authorization': f'Bearer {self.token}'}, files=files)
+                    # r = requests.post(f'{self.api_url}/experiments/{id}/attachments/upload',
+                    #                   headers={'Authorization': f'Bearer {self.token}'}, files=files)
+                    r = self.post(f'{self.api_url}/experiments/{id}/attachments/upload', data=file)
                     print(r.text)
 
     def upload_experiment(self, id: int):

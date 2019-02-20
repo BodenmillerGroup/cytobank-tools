@@ -1,5 +1,32 @@
 import requests
+import time
+import functools
+from datetime import datetime
+import collections
 
+def rate_limits(calls, lapse):
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(obj, *args):
+            now = datetime.now()
+
+            try:
+                obj._requests_list
+            except AttributeError:
+                obj._requests_list = collections.deque()
+
+            while len(obj._requests_list) >= calls:
+                while len(obj._requests_list) > 0 and ((now - obj._requests_list[0]).total_seconds() > lapse):
+                    print("DECORATOR: removing old entry '{0}' while now is '{1}'".format(obj._requests_list.popleft(),
+                                                                                          now))
+                time.sleep(1)
+                now = datetime.now()
+
+            obj._requests_list.append(now)
+            print("DECORATOR: request list size '{0}'".format(len(obj._requests_list)))
+            return fn(obj, *args)
+        return wrapper
+    return decorator
 
 class ApiBase:
     def __init__(self, bank: str, username: str, password: str):
@@ -10,6 +37,7 @@ class ApiBase:
         self.token = None
         self.user_id = None
 
+
     def authenticate(self):
         r = requests.post(f'{self.api_url}/authenticate', data={'username': self.username, 'password': self.password}).json()
         if "errors" in r:
@@ -17,15 +45,13 @@ class ApiBase:
         self.token = r['user']['authToken']
         self.user_id = r['user']['id']
 
-    def post_json(self, uri, data=None, files=None, json=None):
-        return self._run_request("post",uri,data,files,json).json()
-
-    def get_json(self, uri):
-        return self._run_request("get",uri).json()
-
     def get(self, uri):
         return self._run_request("get",uri)
-    
+
+    def post(self, uri, data=None, files=None, json=None):
+        return self._run_request("post",uri, data, files, json)
+
+    @rate_limits(100,60)
     def _run_request(self, method, uri, data=None, files=None, json=None):
         success = False
         attempts = 3
@@ -41,17 +67,21 @@ class ApiBase:
 
         while (attempts > 0):
             attempts -= 1
-            print("DBG: running request '{0}'".format(uri))
             r = cls(uri, headers={'Authorization': f'Bearer {self.token}'}, data=data, files=files, json=json)
-            print("DBG: request termianted with status_code '{0}'".format(r.status_code))
 
             if r.status_code == requests.codes.ok:
-                return r
+                success = True
+                break
+            elif r.status_code == requests.codes.too_many:
+                pass
             else:
                 error_json = r.json()
                 print("DBG: Request error: '{0}'".format(error_json))
                 if error_json['errors'][0] == "Authentication Timeout":
-                    print('Token expired, refreshing')
+                    print('Token expired, renewing... ')
                     self.authenticate()
-    
-        raise(Exception("Request failed 3 times"))
+
+        if not success:
+            raise(Exception("Request failed 3 times"))
+
+        return r
