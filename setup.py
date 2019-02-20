@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='cytobank-tools',
-    version='0.1.0',
+    version='0.1.2',
     description='Tools to handle Cytobank data',
     author='Anton Rau',
     author_email='anton.rau@uzh.ch',
