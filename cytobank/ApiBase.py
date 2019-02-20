@@ -17,6 +17,7 @@ def rate_limits(calls, lapse):
 
             while len(obj._requests_list) >= calls:
                 while len(obj._requests_list) > 0 and ((now - obj._requests_list[0]).total_seconds() > lapse):
+                    obj._requests_list.popleft()
                     # print("DECORATOR: removing old entry '{0}' while now is '{1}'".format(obj._requests_list.popleft(),
                     #                                                                       now))
                 time.sleep(1)
