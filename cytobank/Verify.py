@@ -68,7 +68,6 @@ class Verify():
                     if TIMEOUT_PATTERN in fd.read():
                         # extract experiment ID for later
                         exp_id = os.path.basename(r)
-                        print("Found missing experiment '{0}'".format(exp_id))
                         missing.append(int(exp_id))
         return missing
 

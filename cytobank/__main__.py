@@ -45,7 +45,7 @@ def main():
     print(args)
 
     if args.local_json:
-        assert os.path.isfile(args.local_json), "Json file {0} not found.".forma(args.local_json)
+        assert os.path.isfile(args.local_json), "Json file {0} not found.".format(args.local_json)
 
     if args.command is not None and args.username is not None and args.password is not None and args.bank is not None and args.data is not None:
         if args.command.lower() == 'download':
@@ -60,9 +60,8 @@ def main():
             verify = Verify(args.data, os.path.join(args.data,"experiments.json"))
             print("Found {0} missing experiments. ".format(verify.missing_experiments))
             if verify.missing_experiments:
-                print("\nUse: `cytobank download -j {0}` to download missing experiments. \n"
-                "Then run: `cytobank verify {1}` again until 0 experiments will"
-                " be missing".format(verify.missing_exp_file, args.data))
+                print("\nUse: `cytobank download -j {0}` to download missing " \
+                      "experiments.".format(verify.missing_exp_file))
             
         else:
             raise Exception("Unknown command. Should be 'download' or 'upload'.")
