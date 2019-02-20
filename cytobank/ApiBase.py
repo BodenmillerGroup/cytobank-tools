@@ -17,8 +17,8 @@ class ApiBase:
         self.token = r['user']['authToken']
         self.user_id = r['user']['id']
 
-    def post_json(self, uri):
-        return self._run_request("post",uri).json()
+    def post_json(self, uri, data=None, files=None, json=None):
+        return self._run_request("post",uri,data,files,json).json()
 
     def get_json(self, uri):
         return self._run_request("get",uri).json()
@@ -26,7 +26,7 @@ class ApiBase:
     def get(self, uri):
         return self._run_request("get",uri)
     
-    def _run_request(self, method, uri):
+    def _run_request(self, method, uri, data=None, files=None, json=None):
         success = False
         attempts = 3
         r = None
@@ -40,14 +40,18 @@ class ApiBase:
                                                                               method))
 
         while (attempts > 0):
-            r = cls(uri, headers={'Authorization': f'Bearer {self.token}'})
+            attempts -= 1
+            print("DBG: running request '{0}'".format(uri))
+            r = cls(uri, headers={'Authorization': f'Bearer {self.token}'}, data=data, files=files, json=json)
+            print("DBG: request termianted with status_code '{0}'".format(r.status_code))
 
-            if r.status_code == 200:
+            if r.status_code == requests.codes.ok:
                 return r
             else:
-                attempts -= 1
                 error_json = r.json()
+                print("DBG: Request error: '{0}'".format(error_json))
                 if error_json['errors'][0] == "Authentication Timeout":
+                    print('Token expired, refreshing')
                     self.authenticate()
-                    
+    
         raise(Exception("Request failed 3 times"))
