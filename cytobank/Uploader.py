@@ -19,15 +19,14 @@
 import json
 import os
 
-import requests
-
 from cytobank.ApiBase import ApiBase
 
 
 class Uploader(ApiBase):
-    def __init__(self, bank: str, data_dir: str, username: str, password: str):
+    def __init__(self, bank: str, data_dir: str, username: str, password: str, id: int = None):
         super().__init__(bank, username, password)
         self.data_dir = data_dir
+        self.id = id
         self.authenticate()
 
     def load_experiments(self):
@@ -127,9 +126,12 @@ class Uploader(ApiBase):
         self.upload_gating_ml(experiment_id, experiment_dir)
 
     def upload_all_experiments(self):
-        experiments = self.load_experiments()['experiments']
-
-        for exp in experiments:
-            if not exp['public']:
-                experiment_id = exp['id']
-                self.upload_experiment(experiment_id)
+        if self.id is not None:
+            experiments = self.load_experiments()['experiments']
+            self.upload_experiment(self.id)
+        else:
+            experiments = self.load_experiments()['experiments']
+            for exp in experiments:
+                if not exp['public']:
+                    experiment_id = exp['id']
+                    self.upload_experiment(experiment_id)

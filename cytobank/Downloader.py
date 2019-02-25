@@ -19,15 +19,14 @@
 import os
 import json
 
-import requests
-
 from cytobank.ApiBase import ApiBase
 
 
 class Downloader(ApiBase):
-    def __init__(self, bank: str, data_dir: str, username: str, password: str, json = None):
+    def __init__(self, bank: str, data_dir: str, username: str, password: str, id: int = None, json = None):
         super().__init__(bank, username, password)
         self.data_dir = data_dir
+        self.id = id
         self.json = json
         if not os.path.exists(self.data_dir):
             os.makedirs(self.data_dir)
@@ -130,9 +129,12 @@ class Downloader(ApiBase):
         # self.download_spade_analyses(id, experiment_dir)
 
     def download_all_experiments(self):
-        experiments = self.list_experiments()['experiments']
-
-        for exp in experiments:
-            if not exp['public']:
-                experiment_id = exp['id']
-                self.export_experiment(experiment_id)
+        if self.id is not None:
+            experiments = self.list_experiments()['experiments']
+            self.export_experiment(self.id)
+        else:
+            experiments = self.list_experiments()['experiments']
+            for exp in experiments:
+                if not exp['public']:
+                    experiment_id = exp['id']
+                    self.export_experiment(experiment_id)

@@ -26,8 +26,8 @@ from cytobank.Uploader import Uploader
 from cytobank.Verify import Verify
 
 logging.basicConfig()
-log = logging.getLogger()
-log.propagate = True
+logger = logging.getLogger()
+logger.propagate = True
 
 
 def main():
@@ -37,6 +37,7 @@ def main():
     parser.add_argument('-p', '--password', help='Password', type=str)
     parser.add_argument('-b', '--bank', help='Cytobank name', type=str)
     parser.add_argument('-d', '--data', help='Data directory', type=str)
+    parser.add_argument('-i', '--id', help='Experiment ID', type=int)
     parser.add_argument('-j', '--json', default=None, dest='local_json',
                         help='Use local json experiment fike. ' \
                         '(default:  %(default)s.)')
@@ -49,10 +50,10 @@ def main():
 
     if args.command is not None and args.username is not None and args.password is not None and args.bank is not None and args.data is not None:
         if args.command.lower() == 'download':
-            downloader = Downloader(args.bank, args.data, args.username, args.password, json=args.local_json)
+            downloader = Downloader(args.bank, args.data, args.username, args.password, id=args.id, json=args.local_json)
             downloader.download_all_experiments()
         elif args.command.lower() == 'upload':
-            uploader = Uploader(args.bank, args.data, args.username, args.password)
+            uploader = Uploader(args.bank, args.data, args.username, args.password, id=args.id)
             uploader.upload_all_experiments()
         elif args.command.lower() == 'verify':
             assert os.path.isfile(os.path.join(args.data,

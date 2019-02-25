@@ -1,8 +1,13 @@
-import requests
-import time
-import functools
-from datetime import datetime
 import collections
+import functools
+import logging
+import time
+from datetime import datetime
+
+import requests
+
+logger = logging.getLogger(__name__)
+
 
 def rate_limits(calls, lapse):
     def decorator(fn):
@@ -25,8 +30,11 @@ def rate_limits(calls, lapse):
 
             obj._requests_list.append(now)
             return fn(obj, *args)
+
         return wrapper
+
     return decorator
+
 
 class ApiBase:
     def __init__(self, bank: str, username: str, password: str):
@@ -37,21 +45,21 @@ class ApiBase:
         self.token = None
         self.user_id = None
 
-
     def authenticate(self):
-        r = requests.post(f'{self.api_url}/authenticate', data={'username': self.username, 'password': self.password}).json()
+        r = requests.post(f'{self.api_url}/authenticate',
+                          data={'username': self.username, 'password': self.password}).json()
         if "errors" in r:
             raise Exception(r["errors"])
         self.token = r['user']['authToken']
         self.user_id = r['user']['id']
 
     def get(self, uri):
-        return self._run_request("get",uri)
+        return self._run_request("get", uri)
 
     def post(self, uri, data=None, files=None, json=None):
-        return self._run_request("post",uri, data, files, json)
+        return self._run_request("post", uri, data, files, json)
 
-    @rate_limits(100,60)
+    @rate_limits(100, 60)
     def _run_request(self, method, uri, data=None, files=None, json=None):
         success = False
         attempts = 3
@@ -75,13 +83,18 @@ class ApiBase:
             elif r.status_code == requests.codes.too_many:
                 pass
             else:
-                error_json = r.json()
-                print("DBG: Request error: '{0}'".format(error_json))
-                if error_json['errors'][0] == "Authentication Timeout":
-                    print('Token expired, renewing... ')
-                    self.authenticate()
+                try:
+                    error_json = r.json()
+                    logger.error("DBG: Request error: '{0}'".format(error_json))
+                    if error_json['errors'][0] == "Authentication Timeout":
+                        print('Token expired, renewing... ')
+                        self.authenticate()
+                except Exception as err:
+                    message = f'Server-side error {r.status_code}: {r.reason}'
+                    logger.error(message)
+
 
         if not success:
-            raise(Exception("Request failed 3 times"))
+            raise (Exception("Request failed 3 times"))
 
         return r
