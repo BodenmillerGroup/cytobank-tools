@@ -46,6 +46,15 @@ class Downloader(ApiBase):
                 json.dump(r, file)
             return r
 
+    def check_full_access(self, id: int):
+        r = self.get(f'{self.api_url}/experiments/{id}/full_access_users').json()
+        users = r['experiment']['full_access_users']
+        print(users)
+        for user in users:
+            if user['id'] == self.user_id:
+                return True
+        return False
+
     def download_experiment_details(self, id: int, experiment_dir: str):
         r = self.get(f'{self.api_url}/experiments/{id}').json()
         with open(os.path.join(experiment_dir, 'experiment_details.json'), 'w') as file:
@@ -116,6 +125,10 @@ class Downloader(ApiBase):
                     file.write(r.content)
 
     def export_experiment(self, id: int):
+        access = self.check_full_access(id)
+        if not access:
+            print(f'Do not have full access to experiment with Id {id}')
+            return
         experiment_dir = os.path.join(self.data_dir, str(id))
         print(f'Processing experiment {id}... Output: {experiment_dir}')
         if not os.path.exists(experiment_dir):
