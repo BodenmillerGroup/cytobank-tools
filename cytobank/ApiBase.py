@@ -3,6 +3,10 @@ import time
 import functools
 from datetime import datetime
 import collections
+import json
+from json.decoder import JSONDecodeError
+
+IGNORE_AND_CONTINUE_CODES = [403,429]
 
 def rate_limits(calls, lapse):
     def decorator(fn):
@@ -57,6 +61,12 @@ class ApiBase:
         attempts = 3
         r = None
 
+        print("DBG: method: '{0}' uri: '{1}' data '{2}' files '{3}' json '{4}'".format(method,
+                                                                                       uri,
+                                                                                       data,
+                                                                                       files,
+                                                                                       json))
+
         if method == "post":
             cls = requests.post
         elif method == "get":
@@ -72,14 +82,21 @@ class ApiBase:
             if r.status_code == requests.codes.ok:
                 success = True
                 break
-            elif r.status_code == requests.codes.too_many:
-                pass
+            elif r.status_code in IGNORE_AND_CONTINUE_CODES:
+                print("DBG: Request failed with error: {0} content: {1}. Continuing....".format(r.status_code,
+                                                                                                r.content))
+                success = True
+                break
             else:
-                error_json = r.json()
-                print("DBG: Request error: '{0}'".format(error_json))
-                if error_json['errors'][0] == "Authentication Timeout":
-                    print('Token expired, renewing... ')
-                    self.authenticate()
+                try:
+                    error_json = r.json()
+                    if error_json['errors'][0] == "Authentication Timeout":
+                        print('Token expired, renewing... ')
+                        self.authenticate()
+                except JSONDecodeError as jx:
+                    pass
+                print("DBG: Request failed with error: '{0}' content '{1}".format(r.status_code,
+                                                                                  r.content))
 
         if not success:
             raise(Exception("Request failed 3 times"))

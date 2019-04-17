@@ -54,6 +54,7 @@ class Uploader(ApiBase):
                     "experimentName": expriment_details['experimentName'],
                     "primaryResearcherId": self.user_id, # expriment_details['primaryResearcherId'],
                     "principalInvestigatorId": self.user_id, # expriment_details['principalInvestigatorId'],
+                    "uploaderId": self.user_id, # expriment_details['principalInvestigatorId'],
                     "projectId": expriment_details['projectId'],
                     "purpose": expriment_details['purpose'],
                     "comments": expriment_details['comments']
