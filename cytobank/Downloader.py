@@ -49,7 +49,6 @@ class Downloader(ApiBase):
     def check_full_access(self, id: int):
         r = self.get(f'{self.api_url}/experiments/{id}/full_access_users').json()
         users = r['experiment']['full_access_users']
-        print(users)
         for user in users:
             if user['id'] == self.user_id:
                 return True
